@@ -441,3 +441,6 @@ sys_pipe(void)
 	fd[1] = fd1;
 	return 0;
 }
+
+// TO-DO : share_memory (pozivace ih nasi novi korisnicki programi)
+// TO-DO: get_memory

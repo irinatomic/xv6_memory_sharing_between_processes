@@ -181,7 +181,7 @@ int
 fork(void)
 {
 	int i, pid;
-	struct proc *np;
+	struct proc *np;						// np = new proces
 	struct proc *curproc = myproc();
 
 	// Allocate process.
@@ -190,7 +190,7 @@ fork(void)
 	}
 
 	// Copy process state from proc.
-	if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+	if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){		// copyuvm = dir fro new proces and virtual addr are calculated against it
 		kfree(np->kstack);
 		np->kstack = 0;
 		np->state = UNUSED;
@@ -203,21 +203,22 @@ fork(void)
 	// Clear %eax so that fork returns 0 in the child.
 	np->tf->eax = 0;
 
+	// Set child's FDT and CWD to be the same as of parent
 	for(i = 0; i < NOFILE; i++)
 		if(curproc->ofile[i])
 			np->ofile[i] = filedup(curproc->ofile[i]);
 	np->cwd = idup(curproc->cwd);
 
+	// go through parent's process
+	// if unused give the access to child
+	// if no free shared struct then np->kstack = 0 and np->state = UNUSED and return -1
+
 	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 
 	pid = np->pid;
-
 	acquire(&ptable.lock);
-
 	np->state = RUNNABLE;
-
 	release(&ptable.lock);
-
 	return pid;
 }
 
@@ -241,6 +242,9 @@ exit(void)
 			curproc->ofile[fd] = 0;
 		}
 	}
+
+	// TO-DO
+	// ovde proci kroz sve shared strukture procesa (ima ih 10) i staviti size na 0
 
 	begin_op();
 	iput(curproc->cwd);
@@ -311,15 +315,13 @@ wait(void)
 	}
 }
 
-// Per-CPU process scheduler.
-// Each CPU calls scheduler() after setting itself up.
-// Scheduler never returns.  It loops, doing:
+// Per-CPU process scheduler. Each CPU calls scheduler() after setting itself up.
+// Scheduler never returns. It loops, doing:
 //  - choose a process to run
 //  - swtch to start running that process
-//  - eventually that process transfers control
-//      via swtch back to the scheduler.
+//  - eventually that process transfers control via swtch back to the scheduler.
 void
-scheduler(void)
+scheduler(void)  		// called from main kernel
 {
 	int idle;
 	struct proc *p;
@@ -331,8 +333,7 @@ scheduler(void)
 		// Enable interrupts on this processor.
 		sti();
 
-		// If there are no processes to run, halt the CPU
-		// until the next interrupt.
+		// If there are no processes to run, halt the CPU until the next interrupt.
 		if(idle)
 			hlt();
 		idle = 1;
@@ -344,9 +345,7 @@ scheduler(void)
 				continue;
 
 			idle = 0;
-			// Switch to chosen process.  It is the process's job
-			// to release ptable.lock and then reacquire it
-			// before jumping back to us.
+			// Switch to chosen process. It is the process's job to release ptable.lock and then reacquire it before jumping back to us.
 			c->proc = p;
 			switchuvm(p);
 			p->state = RUNNING;
@@ -363,12 +362,9 @@ scheduler(void)
 	}
 }
 
-// Enter scheduler.  Must hold only ptable.lock
-// and have changed proc->state. Saves and restores
-// intena because intena is a property of this
-// kernel thread, not this CPU. It should
-// be proc->intena and proc->ncli, but that would
-// break in the few places where a lock is held but
+// Enter scheduler.  Must hold only ptable.lock and have changed proc->state. Saves and restores
+// intena because intena is a property of this kernel thread, not this CPU. It should
+// be proc->intena and proc->ncli, but that would break in the few places where a lock is held but
 // there's no process.
 void
 sched(void)
@@ -385,33 +381,32 @@ sched(void)
 	if(readeflags()&FL_IF)
 		panic("sched interruptible");
 	intena = mycpu()->intena;
-	swtch(&p->context, mycpu()->scheduler);
-	mycpu()->intena = intena;
+	swtch(&p->context, mycpu()->scheduler);		// switch(kontekst of currproc, kontekst od schedulera)
+	mycpu()->intena = intena;					// ret iz swtch -> adresa u scheduleru posle swtch
 }
 
-// Give up the CPU for one scheduling round.
+// Give up the CPU for one scheduling round (running -> runnable)
+//p.table =h niz svih procesa (UNUSED, EMBRYO, RUNNABLE, RUNNING, ZOMBIE)
 void
 yield(void)
 {
-	acquire(&ptable.lock);  //DOC: yieldlock
+	acquire(&ptable.lock);  			//DOC: yieldlock
 	myproc()->state = RUNNABLE;
 	sched();
 	release(&ptable.lock);
 }
 
-// A fork child's very first scheduling by scheduler()
-// will swtch here.  "Return" to user space.
+// A fork child's very first scheduling by scheduler() will swtch here. "Return" to user space.
 void
 forkret(void)
 {
 	static int first = 1;
-	// Still holding ptable.lock from scheduler.
-	release(&ptable.lock);
+	release(&ptable.lock);			// Still holding ptable.lock from scheduler.
 
 	if (first) {
-		// Some initialization functions must be run in the context
-		// of a regular process (e.g., they call sleep), and thus cannot
-		// be run from main().
+		// ONLY WHEN FORKRET HAPPENS FOR THE 1. TIME IN SYSTEM
+		// Some initialization functions must be run in the context of a regular process (e.g., they call sleep), 
+		// and thus cannot be run from main().
 		first = 0;
 		iinit(ROOTDEV);
 		initlog(ROOTDEV);
@@ -433,12 +428,9 @@ sleep(void *chan, struct spinlock *lk)
 	if(lk == 0)
 		panic("sleep without lk");
 
-	// Must acquire ptable.lock in order to
-	// change p->state and then call sched.
-	// Once we hold ptable.lock, we can be
-	// guaranteed that we won't miss any wakeup
-	// (wakeup runs with ptable.lock locked),
-	// so it's okay to release lk.
+	// Must acquire ptable.lock in order to change p->state and then call sched.
+	// Once we hold ptable.lock, we can be guaranteed that we won't miss any wakeup
+	// (wakeup runs with ptable.lock locked), so it's okay to release lk.
 	if(lk != &ptable.lock){  //DOC: sleeplock0
 		acquire(&ptable.lock);  //DOC: sleeplock1
 		release(lk);
@@ -447,7 +439,8 @@ sleep(void *chan, struct spinlock *lk)
 	p->chan = chan;
 	p->state = SLEEPING;
 
-	sched();
+	// Skine tr. proces sa izvrsavanja 
+	sched(); 
 
 	// Tidy up.
 	p->chan = 0;
@@ -459,8 +452,7 @@ sleep(void *chan, struct spinlock *lk)
 	}
 }
 
-// Wake up all processes sleeping on chan.
-// The ptable lock must be held.
+// Wake up all processes sleeping on chan. The ptable lock must be held.
 static void
 wakeup1(void *chan)
 {
