@@ -13,15 +13,6 @@ struct cpu {
 extern struct cpu cpus[NCPU];
 extern int ncpu;
 
-#define SHAREDNAME 10
-#define MAXSHARED 10
-
-struct shared {
-	char name[SHAREDNAME];
-	char *memstart;
-	int size;
-};
-
 // Saved registers for kernel context switches.
 // Don't need to save all the segment registers (%cs, etc), because they are constant across kernel contexts.
 // Don't need to save %eax, %ecx, %edx, because the x86 convention is that the caller has saved them.
@@ -37,6 +28,15 @@ struct context {
 };
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+
+#define SHAREDNAME 		10
+#define SHAREDCOUNT 	10
+
+struct shared {
+	char name[SHAREDNAME];
+	char *memstart;
+	int size;
+};
 
 // Per-process state
 struct proc {

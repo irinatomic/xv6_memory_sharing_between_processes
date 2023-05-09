@@ -7,18 +7,16 @@
 #include "proc.h"
 #include "elf.h"
 
-extern char data[];  // defined by kernel.ld
-pde_t *kpgdir;  // for use in scheduler()
+extern char data[];  		// defined by kernel.ld
+pde_t *kpgdir;  			// for use in scheduler()
 
 // Set up CPU's kernel segment descriptors. Run once on entry on each CPU.
 void seginit(void)
 {
 	struct cpu *c;
 
-	// Map "logical" addresses to virtual addresses using identity map.
-	// Cannot share a CODE descriptor for both kernel and user
-	// because it would have to have DPL_USR, but the CPU forbids
-	// an interrupt from CPL=0 to DPL=3.
+	// Map "logical" addresses to virtual addresses using identity map. Cannot share a CODE descriptor for both kernel and user
+	// because it would have to have DPL_USR, but the CPU forbids an interrupt from CPL=0 to DPL=3.
 	c = &cpus[cpuid()];
 	c->gdt[SEG_KCODE] = SEG(STA_X|STA_R, 0, 0xffffffff, 0);
 	c->gdt[SEG_KDATA] = SEG(STA_W, 0, 0xffffffff, 0);
@@ -36,10 +34,9 @@ static pte_t * walkpgdir(pde_t *pgdir, const void *va, int alloc)
 
 	// PDX(va) izvlaci gornjih 10 bita iz va i to ce biti index u direktorijumu (index >= 0 && index < 1024); kada mapiramo kernel u pgdir, pde ce biti 512
 	// kada se mapira deljena memorija od roditelja u pgdir kod dece, pde bi trebalo da bude 256, jer krecemo od 1GB da mapiramo
-	// sledeci korak: dereferenciramo pde i proveravamo P bit (present bit) ; *pde ima 32 bita: gornjih 20 bita su lokacija tabele, donjih 12 su flagovi 
 	pde = &pgdir[PDX(va)];
 	if(*pde & PTE_P){
-		pgtab = (pte_t*)P2V(PTE_ADDR(*pde));		// pgtab citamo iz gornjih 20 bitova iz stavke u direktorijumu (pde-a); PTE_ADDR(*pde) izvlaci gornjih 20 bita
+		pgtab = (pte_t*)P2V(PTE_ADDR(*pde));		// PTE_ADDR(*pde) izvlaci gornjih 20 bita
 	} else {
 		if(!alloc || (pgtab = (pte_t*)kalloc()) == 0)
 			return 0;
@@ -102,7 +99,7 @@ static struct kmap {
 	int perm;												// permissions (writable or not) - one child can write, others only ready from the shared mem.
 } kmap[] = {
 	{ (void*)KERNBASE, 0,             EXTMEM,    PTE_W}, 	// I/O space, KERNBASE = 2GB
-	{ (void*)KERNLINK, V2P(KERNLINK), V2P(data), 0},     	// kern text+rodata
+	{ (void*)KERNLINK, V2P(KERNLINK), V2P(data), 0},     	// kern text+rodata (kernel code)
 	{ (void*)data,     V2P(data),     PHYSTOP,   PTE_W}, 	// kern data+memory
 	{ (void*)DEVSPACE, DEVSPACE,      0,         PTE_W},	// more devices
 };
@@ -183,7 +180,6 @@ void inituvm(pde_t *pgdir, char *init, uint sz)
 }
 
 // Load a program segment into pgdir.  addr must be page-aligned and the pages from addr to addr+sz must already be mapped.
-// load user virtual memory
 int loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz)
 {
 	uint i, pa, n;
@@ -362,13 +358,32 @@ int copyout(pde_t *pgdir, uint va, void *p, uint len)
 		va = va0 + PGSIZE;
 	}
 	return 0;
-}
+} 
 
-// BITAN FAJL? svaki proces ima svoju memoriju (ovde se to alocira i kopira se iz parenta u child)
-// svaki proces ima svoj page table (mapira virtuelne adrese koje proces koristi na fizicke adrese gde se skladiste podaci)
-// page tabale se nalazi u struct pgdir (pokazivac na page directory)
-/*
-	The page table entries (PTEs) contain information about each virtual page of memory, including whether the page is present in 
-	physical memory or swapped out to disk, whether the page is writable or read-only, and whether the page is shared with other processes. 
-	The PTEs are stored in an array of pte_t structures that is allocated by the kernel and pointed to by the process's pgdir structure.
-*/ 
+/*	youtube: https://www.youtube.com/watch?v=dn55T2q63RU&ab_channel=NeilRhodes
+	(mapping va of process to the pa of data)
+	xv6 has 2 levels of paging (1. = directories, 2. = pages)
+	linear = virtual addr: [dir (10 bits), table (10 bits), offset (12 bits)]
+		- dir: takes us to a PDE in directory (is pointer to a table)
+		- table: takes us to a PTE in table (is pointer to a page)
+		- offset: in page (is a physical addr)
+	
+	cr3 = pointer to directorium of curr. active process
+	Each process had it's own memory = it's page directorium with 1024 pointer to page tables 
+	Process:
+		- space for 1 process: 1024 * 1024 * 4KB = 4GB
+		- user part: 0-2GB
+		- kernel part: 2-4GB (from KERNELBASE)
+		- kernel part for every process is the same
+	Flags:
+		- P (present) bit: 1 = page is loaded into memory, 0 = page is swapped into disk
+		- W bit: 0 = read, 1 = read & write
+		- U bit: privilege level
+
+	Kalloc():
+		- returns head page from physical memory (list of pages)
+	
+	pgdir = pointer to dir of curr process
+	pde_t = PDE (page directory entry)
+	pte_t = PTE (page table entry)
+*/

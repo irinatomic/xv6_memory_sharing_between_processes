@@ -442,5 +442,55 @@ sys_pipe(void)
 	return 0;
 }
 
-// TO-DO : share_memory (pozivace ih nasi novi korisnicki programi)
-// TO-DO: get_memory
+// Roditeljski proces prijavljuje deljene strukture
+// Argumenti: naziv strukture, pok. na start deljenog prostora, velicina delj. prostora
+// Vraca redni broj uspesno upisane strukture u procesu (0-9)
+int sys_share_data(char *name, void *addr, int size){
+
+	struct proc *curproc = myproc();
+	char* name;
+	uint* vm_start;
+	int size;
+	struct shared shared;
+
+	if(argstr(0, &name) < 0 || agptr(1, &vm_start, sizeof(uint)) < 0 || argint(2, &size) < 0)
+		return -1;
+	
+	for(int i = 0; i < SHAREDCOUNT; i++){
+		if(curproc->shared[i].size == 0){
+			strncpy(shared.name, name, SHAREDNAME);
+			shared.memstart = vm_start;
+			shared.size = size;
+			curproc->shared[i] = shared;
+			return i;
+		}
+
+		if(strncmp(name, curproc->shared[i].name, SHAREDNAME) == 0)
+			return -2;
+	}
+
+	//there is already 10 shared structures in curr proces
+	return -3;
+}
+
+// Dete poziva kako bi pristupilo shared strukturi koju je roditelj vec prijavio.
+// Argumenti: naziv strukture, pok. na deljeni prostor posle sistemskog poziva
+// Vraca 0 ako je uspesno
+int sys_get_data(char *name, void **addr){
+
+	struct proc *curproc = myproc();
+	char *name;
+	uint *addr;
+	
+	if(argstr(0, &name) < 0 || argptr(1, &addr, sizeof(int)) < 0)	
+		return -1;
+
+	for(int i = 0; i < SHAREDCOUNT; i++){
+		*addr = curproc->shared[i].memstart;
+		//neka provera ?
+	}
+
+	// no shared structures with the given name
+	return -2;
+}
+
