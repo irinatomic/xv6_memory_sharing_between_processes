@@ -209,12 +209,12 @@ int allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
 	char *mem;
 	uint a;
 
-	if(newsz >= KERNBASE)						// TO-DO: switch to 0x40000000 for 1GB
+	if(newsz >= SHAREDBASE)						// switched to 0x40000000 for 1GB
 		return 0;
 	if(newsz < oldsz)
 		return oldsz;
 
-	a = PGROUNDUP(oldsz);						// TO-DO: round up of the newsz so the memory is expanded
+	a = PGROUNDUP(newsz);						// switched: round up of the newsz so the memory is expanded
 	for(; a < newsz; a += PGSIZE){
 		mem = kalloc();							// new page in physical memory
 		if(mem == 0){
@@ -269,7 +269,7 @@ void freevm(pde_t *pgdir)
 
 	if(pgdir == 0)
 		panic("freevm: no pgdir");
-	deallocuvm(pgdir, KERNBASE, 0);						// TO-DO: switch KERNBASE to 0x40000000 for 1GB
+	deallocuvm(pgdir, SHAREDBASE, 0);						// switched KERNBASE to 0x40000000 for 1GB
 	for(i = 0; i < NPDENTRIES; i++){
 		if(pgdir[i] & PTE_P){
 			char * v = P2V(PTE_ADDR(pgdir[i]));

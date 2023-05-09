@@ -5,8 +5,8 @@
 #define DEVSPACE 0xFE000000         // Other devices are at high addresses
 
 // Key addresses for address space layout (see kmap in vm.c for layout)
-#define KERNBASE 0x80000000         // First kernel virtual address
-// TO-DO: dodati 0x40000000 za 1. virtuelnu adresu deljenih struktura
+#define KERNBASE    0x80000000         // First kernel virtual address
+#define SHAREDBASE  0x40000000         // FIrst virtual addr of shared structures
 #define KERNLINK (KERNBASE+EXTMEM)  // Address where kernel is linked
 
 #define V2P(a) (((uint) (a)) - KERNBASE)

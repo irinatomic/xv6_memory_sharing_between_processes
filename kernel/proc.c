@@ -199,6 +199,7 @@ fork(void)
 	np->sz = curproc->sz;
 	np->parent = curproc;
 	*np->tf = *curproc->tf;
+	np->parent_pgdir = curproc->pgdir;									// NEW
 
 	// Clear %eax so that fork returns 0 in the child.
 	np->tf->eax = 0;
@@ -209,9 +210,19 @@ fork(void)
 			np->ofile[i] = filedup(curproc->ofile[i]);
 	np->cwd = idup(curproc->cwd);
 
-	// go through parent's process
-	// if unused give the access to child
-	// if no free shared struct then np->kstack = 0 and np->state = UNUSED and return -1
+	// NEW: copy shared structs from parent to child
+	int i = 0;
+	while(i < 10){
+		if(curproc->shared[i].size == 0)
+			break;
+		np->shared[i] = curproc->shared[i];
+	}
+	if(i > 10){
+		kfree(np->kstack);
+		np->kstack = 0;
+		np->state = UNUSED;
+		return -1;
+	}	
 
 	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 
