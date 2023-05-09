@@ -443,9 +443,10 @@ sys_pipe(void)
 }
 
 // Roditeljski proces prijavljuje deljene strukture
-// Argumenti: naziv strukture, pok. na start deljenog prostora, velicina delj. prostora
+// Argumenti: char *name, void *addr, int size
+// - naziv strukture, pok. na start deljenog prostora, velicina delj. prostora
 // Vraca redni broj uspesno upisane strukture u procesu (0-9)
-int sys_share_data(char *name, void *addr, int size){
+int sys_share_data(void){
 
 	struct proc *curproc = myproc();
 	char* name;
@@ -453,7 +454,7 @@ int sys_share_data(char *name, void *addr, int size){
 	int size;
 	struct shared shared;
 
-	if(argstr(0, &name) < 0 || agptr(1, &vm_start, sizeof(uint)) < 0 || argint(2, &size) < 0)
+	if(argstr(0, &name) < 0 || argptr(1, &vm_start, sizeof(uint)) < 0 || argint(2, &size) < 0)
 		return -1;
 	
 	for(int i = 0; i < SHAREDCOUNT; i++){
@@ -474,9 +475,10 @@ int sys_share_data(char *name, void *addr, int size){
 }
 
 // Dete poziva kako bi pristupilo shared strukturi koju je roditelj vec prijavio.
-// Argumenti: naziv strukture, pok. na deljeni prostor posle sistemskog poziva
+// Argumenti: char *name, void **addr
+// - naziv strukture, pok. na deljeni prostor posle sistemskog poziva
 // Vraca 0 ako je uspesno
-int sys_get_data(char *name, void **addr){
+int sys_get_data(void){
 
 	struct proc *curproc = myproc();
 	char *name;

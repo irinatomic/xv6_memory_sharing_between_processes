@@ -211,7 +211,7 @@ fork(void)
 	np->cwd = idup(curproc->cwd);
 
 	// NEW: copy shared structs from parent to child
-	int i = 0;
+	i = 0;
 	while(i < 10){
 		if(curproc->shared[i].size == 0)
 			break;
