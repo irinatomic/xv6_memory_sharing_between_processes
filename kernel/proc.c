@@ -254,8 +254,11 @@ exit(void)
 		}
 	}
 
-	// TO-DO
-	// ovde proci kroz sve shared strukture procesa (ima ih 10) i staviti size na 0
+	// NEW
+	for(int i=0 ; i<SHAREDCOUNT ; i++)
+		curproc->shared[i].size = 0;
+
+	//freevm(curproc->pgdir);
 
 	begin_op();
 	iput(curproc->cwd);

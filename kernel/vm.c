@@ -369,7 +369,7 @@ int copyout(pde_t *pgdir, uint va, void *p, uint len)
 		- offset: in page (is a physical addr)
 	
 	cr3 = pointer to directorium of curr. active process
-	Each process had it's own memory = it's page directorium with 1024 pointer to page tables 
+	Each process has it's own memory = it's page directorium with 1024 pointer to page tables 
 	Process:
 		- space for 1 process: 1024 * 1024 * 4KB = 4GB
 		- user part: 0-2GB
@@ -387,3 +387,75 @@ int copyout(pde_t *pgdir, uint va, void *p, uint len)
 	pde_t = PDE (page directory entry)
 	pte_t = PTE (page table entry)
 */
+
+/*  Map each shared region (max 10) from the physical addrs to new virtual addr in user space (mapp_pa2va).
+	Then update the va for the shared mem region in the parent proc to match the child.
+	PTE_W           0x002   (writeable)
+	PTE_U           0x004   (can be accessed from user space)
+*/
+int access_shared_memory(pde_t *pgdir, int can_write){
+
+	uint perm, old_perm, size;
+	char* va = SHAREDBASE;
+	struct proc *curproc = myproc(); 			
+
+	if(can_write)
+		perm = 6; 								//PTE_U + PTE_W
+	else
+		perm = 4;								//PTE_U
+
+	for(int i = 0; i < SHAREDCOUNT; i++){
+		if(curproc->shared[i].size == 0)
+			break;
+
+		old_perm = PTE_FLAGS(curproc->shared[i].memstart);		//last 12 bits
+		if((size = mapp_pa2va(pgdir, curproc->parent_pgdir, curproc->shared[i].memstart, va, curproc->shared[i].size, perm)) < 0){
+			freevm(pgdir);										// mistake -> deallocate entire virtual mem
+			return -1;
+		}
+
+		curproc->shared[i].memstart = va + old_perm;			//parent process
+		va += size;
+	}
+	
+	return 0;
+}
+
+/* 	Map the physical memory starting from 'pa_start' to virtual memory starting from '*va'.
+	Map pages (PGSIZE = 4KB) until a total of 'size' bytes are mapped.
+	Returns size of mapped area (requested size of the memory rouned up to the nearest page size).
+*/
+int mapp_pa2va(pde_t *pgdir, pde_t *parentpgdir, char *pa_start, uint *va, uint size, int perm){
+
+	pte_t *pte;									//pte for the physical address
+	uint pa, vpage_start;	
+
+	if(*va + size > KERNBASE)					//exceeds the user space
+		return -1;
+
+	vpage_start = PGROUNDUP(*va);
+	size = PGROUNDUP(size);
+
+	for(int i = 0; i < size; i += PGSIZE){
+
+		if((pte = walkpgdir(parentpgdir, pa_start, 0)) == 0)
+			return -1;
+		if(!(*pte & PTE_P)){
+			cprintf("mapp_pa2va: page not present \n");
+			return -1;	
+		}
+
+		pa = PTE_ADDR(*pte);
+
+		if(mappages(pgdir, (uint*)vpage_start, PGSIZE, pa, perm) < 0){
+			cprintf("mapp_pa2va: couldn't map the pages \n");
+			deallocuvm(pgdir, va + size, va);
+			return -1;
+		}	
+
+		vpage_start += PGSIZE;
+		pa_start += PGSIZE;
+	}
+
+	return size;
+}
