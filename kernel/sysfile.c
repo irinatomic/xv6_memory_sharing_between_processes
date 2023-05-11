@@ -488,8 +488,11 @@ int sys_get_data(void){
 		return -1;
 
 	for(int i = 0; i < SHAREDCOUNT; i++){
-		*addr = curproc->shared[i].memstart;
-		//neka provera ?
+
+		if(strncmp(name, curproc->shared[i].name, SHAREDNAME) == 0){
+			*addr = curproc->shared[i].memstart;	
+			return 0;
+		}
 	}
 
 	// no shared structures with the given name

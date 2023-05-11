@@ -430,11 +430,11 @@ int mapp_pa2va(pde_t *pgdir, pde_t *parentpgdir, char *pa_start, uint *va, uint 
 	pte_t *pte;									//pte for the physical address
 	uint pa, vpage_start;	
 
-	if(*va + size > KERNBASE)					//exceeds the user space
-		return -1;
-
 	vpage_start = PGROUNDUP(*va);
 	size = PGROUNDUP(size);
+
+	if(*va + size > KERNBASE)					//exceeds the user space ?? hex addr + bytes > hex addr?
+		return -1;
 
 	for(int i = 0; i < size; i += PGSIZE){
 
