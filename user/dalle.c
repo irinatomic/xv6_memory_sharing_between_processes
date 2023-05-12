@@ -8,9 +8,9 @@ char *argv_lisa[] = { "lisa", 0 };
 int main(int argc, char *argv[]){
 
     char *file_path = "../home/README";
-    int curr_sent_no = 1;
-    char *longest_word_curr_sent = "";
-    char *shortest_word_curr_sent = "";
+    int curr_sent_no = 99;
+    char *longest_word_curr_sent = "aa";
+    char *shortest_word_curr_sent = "b";
     int len_longest_word = 0;
     int len_shortest_word = 0;
     char *longest_word = "";
@@ -21,31 +21,32 @@ int main(int argc, char *argv[]){
     if(argc > 1)
         file_path = argv[1];
 
+    // int *addr = 12220;
+    // printf("curr sent no address %d \n", &curr_sent_no);
+    // printf("on addr %d \n", *addr);
     // declare shared structures
     share_data("file_path", file_path, 20);
-    share_data("curr_sent_no", &curr_sent_no, 4);
-    share_data("longest_word_curr_sent", longest_word_curr_sent, 20);
-    share_data("shortest_word_curr_sent", shortest_word_curr_sent, 20);
-    share_data("len_longest_word", &len_longest_word, 4);
-    share_data("len_shortest_word", &len_shortest_word, 4);
+    share_data("curr_sent", &curr_sent_no, 4);
+    share_data("cs_longest", longest_word_curr_sent, 20);
+    share_data("cs_shortest", shortest_word_curr_sent, 20);
+    share_data("len_longest", &len_longest_word, 4);
+    share_data("len_shortest", &len_shortest_word, 4);
     share_data("longest_word", longest_word, 20);
     share_data("shortest_word", shortest_word, 20);
     share_data("command", &command, 4);
 
     int child_comma, child_lisa;
+
     child_lisa = fork();
-
-    if(child_lisa == 0){
+    if(child_lisa == 0)
         exec("/bin/liSa", argv_lisa);
-        exit();
-    } else {
 
-        child_comma = fork();
-        if(child_comma == 0){
-            exec("/bin/coMMa", argv_comma);
-            exit();
-        }
-    }
+    child_comma = fork();
+    if(child_comma == 0)
+        exec("/bin/coMMa", argv_comma);
+
+    wait();
+    wait();
 
     // free memory
     free(file_path);

@@ -216,6 +216,7 @@ fork(void)
 		if(curproc->shared[i].size == 0)
 			break;
 		np->shared[i] = curproc->shared[i];
+		i++;
 	}
 	if(i > 10){
 		kfree(np->kstack);

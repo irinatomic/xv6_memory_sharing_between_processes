@@ -5,6 +5,7 @@
 
 int main(int argc, char *argv[]){
 
+    printf("started lisa\n");
 
     exit();
 }

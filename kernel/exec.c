@@ -64,7 +64,7 @@ int exec(char *path, char **argv) {
 	ip = 0;
 
 	// NEW: dozvolimo dete procesu da pise u deljenu memoriju
-	if(strncmp("coMMa", argv[0], SHAREDNAME) == 0 || strncmp("liSa", argv[0], SHAREDNAME) == 0)
+	if(strncmp("comma", argv[0], SHAREDNAME) == 0 || strncmp("lisa", argv[0], SHAREDNAME) == 0)
 		access_shared_memory(pgdir, 1);
 
 	// Allocate 2 pages at the next page boundary. Make the 1. inaccessible. Use the 2. as the user stack [TOP TO BOTTOM]
@@ -106,11 +106,11 @@ int exec(char *path, char **argv) {
 	curproc->sz = sz;
 	curproc->tf->eip = elf.entry;  		// elf.entry = pointer to main of the program
 	curproc->tf->esp = sp;
-	switchuvm(curproc);					// postavlja u cr3 registar page directory od curproc
+	switchuvm(curproc);		
 	freevm(oldpgdir);
-	return 0;							// takes 'cs' and 'ip' if trapframe and goes to elf.entry [program is already in memory]
+	return 0;							
 
-	bad:								// cleans up resources after error
+	bad:							
 	if(pgdir)
 		freevm(pgdir);
 	if(ip){

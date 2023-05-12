@@ -454,7 +454,7 @@ int sys_share_data(void){
 	int size;
 	struct shared shared;
 
-	if(argstr(0, &name) < 0 || argptr(1, &vm_start, sizeof(uint)) < 0 || argint(2, &size) < 0)
+	if(argstr(0, &name) < 0 || argptr(1, (void*)&vm_start, sizeof(uint)) < 0 || argint(2, &size) < 0)
 		return -1;
 	
 	for(int i = 0; i < SHAREDCOUNT; i++){
@@ -491,6 +491,7 @@ int sys_get_data(void){
 
 		if(strncmp(name, curproc->shared[i].name, SHAREDNAME) == 0){
 			*addr = curproc->shared[i].memstart;	
+			//cprintf("get data %d  memstart %d memstart_p %d size %d\n", *addr, *(curproc->shared[i].memstart), *(curproc->parent->shared[i].memstart), curproc->shared[i].size);
 			return 0;
 		}
 	}

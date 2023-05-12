@@ -209,12 +209,12 @@ int allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
 	char *mem;
 	uint a;
 
-	if(newsz >= KERNBASE)						// switched to 0x40000000 for 1GB
+	if(newsz >= SHAREDBASE)						// switched to 0x40000000 for 1GB
 		return 0;
 	if(newsz < oldsz)
 		return oldsz;
 
-	a = PGROUNDUP(oldsz);						// switched: round up of the newsz so the memory is expanded
+	a = PGROUNDUP(oldsz);						// NO switched: round up of the newsz so the memory is expanded
 	for(; a < newsz; a += PGSIZE){
 		mem = kalloc();							// new page in physical memory
 		if(mem == 0){
@@ -269,7 +269,7 @@ void freevm(pde_t *pgdir)
 
 	if(pgdir == 0)
 		panic("freevm: no pgdir");
-	deallocuvm(pgdir, KERNBASE, 0);						// switched KERNBASE to 0x40000000 for 1GB
+	deallocuvm(pgdir, SHAREDBASE, 0);						// switched KERNBASE to 0x40000000 for 1GB
 	for(i = 0; i < NPDENTRIES; i++){
 		if(pgdir[i] & PTE_P){
 			char * v = P2V(PTE_ADDR(pgdir[i]));
@@ -397,24 +397,27 @@ int access_shared_memory(pde_t *pgdir, int can_write){
 
 	uint perm, old_perm, size;
 	char* va = SHAREDBASE;
-	struct proc *curproc = myproc(); 			
+	struct proc *curproc = myproc(); 		
 
-	if(can_write)
-		perm = 6; 								//PTE_U + PTE_W
-	else
-		perm = 4;								//PTE_U
+	cprintf("ACCESS SHARED MEMORY \n");	
 
+	cprintf("1\n");
 	for(int i = 0; i < SHAREDCOUNT; i++){
+		cprintf("2\n");
 		if(curproc->shared[i].size == 0)
 			break;
 
+		cprintf("3 %d \n", curproc->shared[i].memstart);
 		old_perm = PTE_FLAGS(curproc->shared[i].memstart);		//last 12 bits
-		if((size = mapp_pa2va(pgdir, curproc->parent_pgdir, curproc->shared[i].memstart, va, curproc->shared[i].size, perm)) < 0){
+		if((size = mapp_pa2va(pgdir, curproc->parent_pgdir, curproc->shared[i].memstart, (void*)va, curproc->shared[i].size)) < 0){
 			freevm(pgdir);										// mistake -> deallocate entire virtual mem
 			return -1;
 		}
 
-		curproc->shared[i].memstart = va + old_perm;			//parent process
+		cprintf("4\n");
+		//cprintf("old memstart for child %d", curproc->shared[i].memstart);
+		curproc->shared[i].memstart = va + old_perm;		
+		//cprintf("new memstart for child %d", curproc->shared[i].memstart);
 		va += size;
 	}
 	
@@ -425,21 +428,26 @@ int access_shared_memory(pde_t *pgdir, int can_write){
 	Map pages (PGSIZE = 4KB) until a total of 'size' bytes are mapped.
 	Returns size of mapped area (requested size of the memory rouned up to the nearest page size).
 */
-int mapp_pa2va(pde_t *pgdir, pde_t *parentpgdir, char *pa_start, uint *va, uint size, int perm){
+int mapp_pa2va(pde_t *pgdir, pde_t *parentpgdir, char *pa_start, uint *va, uint size){
 
 	pte_t *pte;									//pte for the physical address
 	uint pa, vpage_start;	
 
-	vpage_start = PGROUNDUP(*va);
-	size = PGROUNDUP(size);
-
-	if(*va + size > KERNBASE)					//exceeds the user space ?? hex addr + bytes > hex addr?
+	cprintf("pa2va 1 \n");
+	if(va + size >= KERNBASE)					//exceeds the user space ?? hex addr + bytes > hex addr?
 		return -1;
 
+	vpage_start = PGROUNDUP((uint)va);
+	size = PGROUNDUP(size);
+
+	cprintf("pa2va 2 \n");
 	for(int i = 0; i < size; i += PGSIZE){
 
+		cprintf("pa2va 3 \n");
 		if((pte = walkpgdir(parentpgdir, pa_start, 0)) == 0)
 			return -1;
+
+		cprintf("pa2va 4 \n");
 		if(!(*pte & PTE_P)){
 			cprintf("mapp_pa2va: page not present \n");
 			return -1;	
@@ -447,12 +455,14 @@ int mapp_pa2va(pde_t *pgdir, pde_t *parentpgdir, char *pa_start, uint *va, uint 
 
 		pa = PTE_ADDR(*pte);
 
-		if(mappages(pgdir, (uint*)vpage_start, PGSIZE, pa, perm) < 0){
+		cprintf("pa2va 5 \n");
+		if(mappages(pgdir, (uint*)vpage_start, PGSIZE, pa, PTE_W|PTE_U) < 0){
 			cprintf("mapp_pa2va: couldn't map the pages \n");
 			deallocuvm(pgdir, va + size, va);
 			return -1;
 		}	
 
+		cprintf("pa2va 6 \n");
 		vpage_start += PGSIZE;
 		pa_start += PGSIZE;
 	}
