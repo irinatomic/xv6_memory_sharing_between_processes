@@ -27,22 +27,14 @@ int main(int argc, char *argv[]){
         switch(command){
             case 0:
                 uint *curr_sent;
-                // char *longest_word, shortest_word;
+                char *longest_word, shortest_word;
                 get_data("curr_sent", &curr_sent);
-                printf("curr_sent %d val %d\n", curr_sent, *curr_sent);
-                // uint *addr = curr_sent;
-                // int *ptr = (int*)addr;
-                // int val = *ptr;
-                
 
-                // int *spec = 12220;
-                // printf("SPECIAL %d \n", *spec);
-                // printf("cs val %d 2nd layer val %d %d\n", curr_sent, *curr_sent, *((uint*)curr_sent));
-                // printf("addre %d ptr %d val %d \n", *addr, *ptr, val);
+                printf("sent no %d \n", *curr_sent);
                 // get_data("cs_longest", &longest_word);
                 // get_data("cs_shortest", &shortest_word);
                 // printf("Latest sentence %d: Local extrema => longest: %s :: shortest: %s\n", 
-                //         *((uint*)curr_sent), *((char*)longest_word), *((char*)shortest_word));
+                //         *curr_sent, *((char*)longest_word), *((char*)shortest_word));
 				break;
         }
     }

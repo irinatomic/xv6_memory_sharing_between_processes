@@ -399,25 +399,17 @@ int access_shared_memory(pde_t *pgdir, int can_write){
 	char* va = SHAREDBASE;
 	struct proc *curproc = myproc(); 		
 
-	cprintf("ACCESS SHARED MEMORY \n");	
-
-	cprintf("1\n");
 	for(int i = 0; i < SHAREDCOUNT; i++){
-		cprintf("2\n");
 		if(curproc->shared[i].size == 0)
 			break;
 
-		cprintf("3 %d \n", curproc->shared[i].memstart);
 		old_perm = PTE_FLAGS(curproc->shared[i].memstart);		//last 12 bits
 		if((size = mapp_pa2va(pgdir, curproc->parent_pgdir, curproc->shared[i].memstart, (void*)va, curproc->shared[i].size)) < 0){
 			freevm(pgdir);										// mistake -> deallocate entire virtual mem
 			return -1;
 		}
 
-		cprintf("4\n");
-		//cprintf("old memstart for child %d", curproc->shared[i].memstart);
 		curproc->shared[i].memstart = va + old_perm;		
-		//cprintf("new memstart for child %d", curproc->shared[i].memstart);
 		va += size;
 	}
 	
@@ -433,21 +425,16 @@ int mapp_pa2va(pde_t *pgdir, pde_t *parentpgdir, char *pa_start, uint *va, uint 
 	pte_t *pte;									//pte for the physical address
 	uint pa, vpage_start;	
 
-	cprintf("pa2va 1 \n");
-	if(va + size >= KERNBASE)					//exceeds the user space ?? hex addr + bytes > hex addr?
+	if(va + size >= KERNBASE)				
 		return -1;
 
 	vpage_start = PGROUNDUP((uint)va);
 	size = PGROUNDUP(size);
 
-	cprintf("pa2va 2 \n");
 	for(int i = 0; i < size; i += PGSIZE){
 
-		cprintf("pa2va 3 \n");
 		if((pte = walkpgdir(parentpgdir, pa_start, 0)) == 0)
 			return -1;
-
-		cprintf("pa2va 4 \n");
 		if(!(*pte & PTE_P)){
 			cprintf("mapp_pa2va: page not present \n");
 			return -1;	
@@ -455,14 +442,12 @@ int mapp_pa2va(pde_t *pgdir, pde_t *parentpgdir, char *pa_start, uint *va, uint 
 
 		pa = PTE_ADDR(*pte);
 
-		cprintf("pa2va 5 \n");
 		if(mappages(pgdir, (uint*)vpage_start, PGSIZE, pa, PTE_W|PTE_U) < 0){
 			cprintf("mapp_pa2va: couldn't map the pages \n");
 			deallocuvm(pgdir, va + size, va);
 			return -1;
 		}	
 
-		cprintf("pa2va 6 \n");
 		vpage_start += PGSIZE;
 		pa_start += PGSIZE;
 	}

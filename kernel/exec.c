@@ -106,7 +106,7 @@ int exec(char *path, char **argv) {
 	curproc->sz = sz;
 	curproc->tf->eip = elf.entry;  		// elf.entry = pointer to main of the program
 	curproc->tf->esp = sp;
-	switchuvm(curproc);		
+	switchuvm(curproc);					// postavlja u cr3 registar page directory od curproc
 	freevm(oldpgdir);
 	return 0;							
 
