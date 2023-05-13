@@ -27,14 +27,15 @@ int main(int argc, char *argv[]){
         switch(command){
             case 0:
                 uint *curr_sent;
-                char *longest_word, shortest_word;
+                char *longest_word, *shortest_word;
                 get_data("curr_sent", &curr_sent);
+                get_data("cs_longest", &longest_word);
+                get_data("cs_shortest", &shortest_word);
 
-                printf("sent no %d \n", *curr_sent);
-                // get_data("cs_longest", &longest_word);
-                // get_data("cs_shortest", &shortest_word);
-                // printf("Latest sentence %d: Local extrema => longest: %s :: shortest: %s\n", 
-                //         *curr_sent, *((char*)longest_word), *((char*)shortest_word));
+                *(longest_word + strlen(longest_word)) = '\0';
+                *(shortest_word + strlen(shortest_word)) = '\0';
+                printf("Latest sentence %d: Local extrema => longest: %s :: shortest: %s\n", 
+                        *curr_sent, longest_word, shortest_word);
 				break;
         }
     }

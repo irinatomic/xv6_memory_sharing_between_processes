@@ -9,7 +9,7 @@ int main(int argc, char *argv[]){
 
     char *file_path = "../home/README";
     int curr_sent_no = 99;
-    char *longest_word_curr_sent = "aa";
+    char *longest_word_curr_sent = "abc";
     char *shortest_word_curr_sent = "b";
     int len_longest_word = 0;
     int len_shortest_word = 0;
@@ -21,10 +21,6 @@ int main(int argc, char *argv[]){
     if(argc > 1)
         file_path = argv[1];
 
-    // int *addr = 12220;
-    // printf("curr sent no address %d \n", &curr_sent_no);
-    // printf("on addr %d \n", *addr);
-    // declare shared structures
     share_data("file_path", file_path, 20);
     share_data("curr_sent", &curr_sent_no, 4);
     share_data("cs_longest", longest_word_curr_sent, 20);
