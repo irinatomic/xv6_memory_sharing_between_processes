@@ -9,11 +9,11 @@ int main(int argc, char *argv[]){
 
     char *file_path = "../home/README";
     int curr_sent_no = 0;
-    char *longest_word_curr_sent = "\0";
+    char *longest_word_curr_sent = "aaaa\0";
     char *shortest_word_curr_sent = "\0";
     int len_longest_word = -1;
     int len_shortest_word = __INT_MAX__;
-    char *longest_word = "\0";
+    char *longest_word = "olll\0";
     char *shortest_word = "\0";
     int command = 4;
 
@@ -36,15 +36,21 @@ int main(int argc, char *argv[]){
     int child_comma, child_lisa;
 
     child_lisa = fork();
-    if(child_lisa == 0)
+    if(child_lisa == 0){
         exec("/bin/liSa", argv_lisa);
+        //exit();
+    }
 
     child_comma = fork();
-    if(child_comma == 0)
+    if(child_comma == 0){
         exec("/bin/coMMa", argv_comma);
+        exit();
+    }
 
-    wait();
-    wait();
+    int p1 = wait();
+    int p2 = wait();
+
+    //printf("%d %d %d %d \n", child_comma, child_lisa, p1, p2);
 
     // free memory
     free(file_path);

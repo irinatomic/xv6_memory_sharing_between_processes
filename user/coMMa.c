@@ -48,18 +48,20 @@ int main(int argc, char *argv[]){
                 break;
             case 3:
                 get_data("command", &command);
-                *((uint*)command) = 2;
+                *((uint*)command) = 3;
                 printf("Pausing... \n");
                 break;
             case 4:
                 get_data("command", &command);
-                *((uint*)command) = 3;
+                *((uint*)command) = 4;
                 printf("Resuming... \n");
                 break;
             case 5:
                 get_data("command", &command);
-                *((uint*)command) = 4;
+                *((uint*)command) = 5;
                 exit();
+            default:
+                break;
         }
     }
 

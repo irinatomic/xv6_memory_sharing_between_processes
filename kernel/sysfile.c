@@ -482,7 +482,7 @@ int sys_get_data(void){
 
 	struct proc *curproc = myproc();
 	char *name;
-	uint *addr;
+	uint **addr;
 	
 	if(argstr(0, &name) < 0 || argptr(1, &addr, sizeof(int)) < 0)	
 		return -1;
