@@ -9,12 +9,12 @@ int main(int argc, char *argv[]){
 
     char *file_path = "../home/README";
     int curr_sent_no = 0;
-    char *longest_word_curr_sent = "aaaa\0";
-    char *shortest_word_curr_sent = "\0";
+    char *longest_word_curr_sent = "\0";
+    char *shortest_word_curr_sent = "alohomora\0";
     int len_longest_word = -1;
     int len_shortest_word = __INT_MAX__;
-    char *longest_word = "olll\0";
-    char *shortest_word = "\0";
+    char *longest_word = "\0";
+    char *shortest_word = "alohomora";
     int command = 4;
 
     // check if different file path is given

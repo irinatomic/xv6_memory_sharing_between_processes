@@ -14,8 +14,6 @@ int main(int argc, char *argv[]){
 
     int user_command, *command;
     char buff[20];
-
-    printf("started comma\n");
     printf("%s", display_text);
 
     for( ; ; ){
