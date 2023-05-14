@@ -87,8 +87,6 @@ void check_current_setence(char *buff, int start, int end){
     get_data("len_longest", &len_longest);
     get_data("len_shortest", &len_shortest);
 
-    printf("%d %d \n", longest_word, *longest_word);
-
     for(int i = start; i <= end; i++){
 
         if(buff[i] == ' ' || i == end){
@@ -98,32 +96,32 @@ void check_current_setence(char *buff, int start, int end){
             memset(word, 0, wlen);
             strncpy(word, buff+wstart, wlen);  
             word[wlen] = '\0';
-            //printf("%s=", word);  
-            //printf("%d %d %d \n", wlen - *len_longest > 0, wlen, *len_longest);
 
-            //printf("%d %d %s \n", wlen, *len_longest, *cs_longest);
             //checks for current sentence
-            if(wlen > strlen(cs_longest))
-                cs_longest = word;
-            else if(wlen < strlen(cs_shortest))
-                cs_shortest = word;
-
+            if(wlen > strlen(cs_longest)){
+                for(int j = 0; j < wlen; j++)
+                    *(cs_longest+j) = *(word+j);
+            }
+            else if(wlen < strlen(cs_shortest)){
+                for(int j = 0; j < wlen; j++)
+                    *(cs_shortest+j) = *(word+j);
+            }
+                
             //check global values
             if(wlen > *len_longest){
-                *len_longest = wlen;
-                printf("%d %d \n", word, *word);
-                *longest_word = *word;
-                *(longest_word + len(longest_word)) = '\0';
-
+                *len_longest = wlen;                
+                for(int j = 0; j < wlen; j++)
+                    *(longest_word+j) = *(word+j);
             } else if(wlen < *len_shortest){
                 *len_shortest = wlen;
-                shortest_word = word;
+                for(int j = 0; j < wlen; j++)
+                    *(shortest_word+j) = *(word+j);
             }
 
             wstart = i+1;
         }
     }
 
-    //printf("\n");
-    printf("cs: %d %s global: %d %d \n", longest_word, *longest_word, *len_longest, *len_shortest);
+    printf("global addr %d %d \n", longest_word, shortest_word);
+    printf("cs: %s %s global: %s %s \n", cs_longest, cs_shortest, longest_word, shortest_word);
 }
