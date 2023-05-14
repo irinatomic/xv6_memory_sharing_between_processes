@@ -49,12 +49,12 @@ int main(int argc, char *argv[]){
             case 3:
                 get_data("command", &command);
                 *((uint*)command) = 2;
-                printf("Pausing...");
+                printf("Pausing... \n");
                 break;
             case 4:
                 get_data("command", &command);
                 *((uint*)command) = 3;
-                printf("Resuming...");
+                printf("Resuming... \n");
                 break;
             case 5:
                 get_data("command", &command);

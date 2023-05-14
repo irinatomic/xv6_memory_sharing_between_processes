@@ -11,11 +11,11 @@ int main(int argc, char *argv[]){
     int curr_sent_no = 0;
     char *longest_word_curr_sent = "\0";
     char *shortest_word_curr_sent = "\0";
-    int len_longest_word = 0;
-    int len_shortest_word = 0;
+    int len_longest_word = -1;
+    int len_shortest_word = __INT_MAX__;
     char *longest_word = "\0";
     char *shortest_word = "\0";
-    int command = 0;
+    int command = 4;
 
     // check if different file path is given
     if(argc > 1){
