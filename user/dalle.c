@@ -8,18 +8,20 @@ char *argv_lisa[] = { "lisa", 0 };
 int main(int argc, char *argv[]){
 
     char *file_path = "../home/README";
-    int curr_sent_no = 99;
-    char *longest_word_curr_sent = "abc";
-    char *shortest_word_curr_sent = "b";
+    int curr_sent_no = 0;
+    char *longest_word_curr_sent = "\0";
+    char *shortest_word_curr_sent = "\0";
     int len_longest_word = 0;
     int len_shortest_word = 0;
-    char *longest_word = "";
-    char *shortest_word = "";
+    char *longest_word = "\0";
+    char *shortest_word = "\0";
     int command = 0;
 
     // check if different file path is given
-    if(argc > 1)
+    if(argc > 1){
         file_path = argv[1];
+        //*(file_path + strlen(file_path)) = '\0';
+    }
 
     share_data("file_path", file_path, 20);
     share_data("curr_sent", &curr_sent_no, 4);
