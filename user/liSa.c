@@ -28,7 +28,6 @@ int main(int argc, char *argv[]){
     buff[n] = '\0';
 
     find_global_values(buff, n);
-    exit();
 
     for( ; ; ){
         
@@ -45,7 +44,7 @@ int main(int argc, char *argv[]){
             i++;
         
         //check curr sent 
-        //check_current_setence(buff, sent_start, i);
+        check_current_setence(buff, sent_start, i);
         i++;                                            //move i from '.?!' to next sentence
 
         //check user command from coMMa
@@ -78,63 +77,46 @@ void find_global_values(char* buff, int len){
     char *longest_word, *shortest_word;
     int *len_longest, *len_shortest;
     int wstart = 0, wend, wlen;
+    char word[30], lw[30] = ".\0", sw[30] = ".....\0";
+
+    for(int i = 0; i <= len; i++){
+        if(buff[i] == ' ' || i == len){
+            wend = i-1;
+            wlen = wend - wstart + 1;
+            memset(word, 0, wlen);
+            strncpy(word, buff+wstart, wlen);  
+            word[wlen] = '\0';
+
+            if(wlen > strlen(lw))
+                strncpy(lw, word, wlen+1);
+            else if(wlen < strlen(sw))
+                strncpy(sw, word, wlen+1);
+
+            wstart = i+1;
+        }
+    }
 
     get_data("longest_word", &longest_word);
     get_data("shortest_word", &shortest_word);
     get_data("len_longest", &len_longest);
     get_data("len_shortest", &len_shortest);
 
-    char *cs_longest, *cs_shortest;
-    get_data("cs_longest", &cs_longest);
-    get_data("cs_shortest", &cs_shortest);
+    *len_longest = strlen(lw);
+    *len_shortest = strlen(sw);
 
-    for(int i = 0; i <= len; i++){
+    for(int i = 0; i < strlen(sw+1); i++)
+        *(shortest_word+i) = *(sw+i);
+    for(int i = 0; i < strlen(lw)+1; i++)
+        *(longest_word+i) = *(lw+i);
 
-        if(buff[i] == ' ' || i == len){
-            wend = i-1;
-            wlen = wend - wstart + 1;
-            char *word = (char *) malloc(10 * sizeof(char));
-            strncpy(word, buff+wstart, wlen);  
-            word[wlen] = '\0';
-
-            //check for max
-            if(wlen > *len_longest){
-                *len_longest = wlen;              
-                for(int j = 0; j < wlen; j++)
-                    *(longest_word+j) = *(word+j);
-                *(longest_word + wlen) = '\0';
-                printf("LONG %s %s %s\n", word, longest_word, shortest_word);
-            } 
-            
-            //check for min
-            else if(wlen < *len_shortest){
-                *len_shortest = wlen;
-                for(int j = 0; j < wlen; j++)
-                    *(shortest_word+j) = *(word+j);
-                *(shortest_word + wlen) = '\0';
-                printf("SHORT %s %s \n", word, shortest_word);
-            }
-
-            wstart = i+1;
-        }
-    }
-
-    printf("global: %s %s \n", longest_word, shortest_word);
-    printf("global: %s %s \n", cs_longest, cs_shortest);
+    //printf("global %s %s %s %s \n", lw, sw, longest_word, shortest_word);
 }
 
 void check_current_setence(char *buff, int start, int end){
 
-    int wstart = start, wend, wlen;
     char *cs_longest, *cs_shortest;
-    get_data("cs_longest", &cs_longest);
-    get_data("cs_shortest", &cs_shortest);
-
-    //reset values
-    *(cs_longest+1) = "\0";
-    *(cs_shortest+19) = "\0";
-
-    printf("pre %s %s \n", cs_longest, cs_shortest);
+    int wstart = start, wend, wlen;
+    char word[30], lw[30] = ".\0", sw[30] = ".....\0";
 
     for(int i = start; i <= end; i++){
 
@@ -145,23 +127,22 @@ void check_current_setence(char *buff, int start, int end){
             strncpy(word, buff+wstart, wlen);  
             word[wlen] = '\0';
 
-            //checks for max
-            if(wlen > strlen(cs_longest)){
-                for(int j = 0; j < wlen; j++)
-                    *(cs_longest+j) = *(word+j);
-                *(cs_longest + wlen) = '\0';
-            }
-
-            //check for min
-            else if(wlen < strlen(cs_shortest)){
-                for(int j = 0; j < wlen; j++)
-                    *(cs_shortest+j) = *(word+j);
-                *(cs_shortest + wlen) = '\0';
-            }
+            if(wlen > strlen(lw))
+                strncpy(lw, word, wlen+1);
+            else if(wlen < strlen(sw))
+                strncpy(sw, word, wlen+1);
 
             wstart = i+1;
         }
     }
 
-    printf("cs: %s %s \n", cs_longest, cs_shortest);
+    get_data("cs_longest", &cs_longest);
+    get_data("cs_shortest", &cs_shortest);
+
+     for(int i = 0; i < strlen(sw+1); i++)
+        *(cs_shortest+i) = *(sw+i);
+    for(int i = 0; i < strlen(lw)+1; i++)
+        *(cs_longest+i) = *(lw+i);
+
+    printf("cs: %s %s %s %s\n", lw, sw, cs_longest, cs_shortest);
 }
