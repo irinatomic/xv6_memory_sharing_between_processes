@@ -36,7 +36,6 @@ int main(int argc, char *argv[]){
         i = (buff[i] == ' ')? i+1: i;                   //for space after the sign (.?!)
         get_data("curr_sent", &curr_sent);              //increment counter for curr sent
         (*curr_sent)++;
-        printf("%d %d %d\n", *curr_sent, i, n);         //DEBUG
 
         //find start and end index of curr sent
         sent_start = i;
