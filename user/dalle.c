@@ -7,19 +7,19 @@ char *argv_lisa[] = { "lisa", 0 };
 
 int main(int argc, char *argv[]){
 
-    char *file_path = "../home/README\0";
+    static char file_path[20] = "../home/README\0";
     int curr_sent_no = 0;
-    char *longest_word_curr_sent = "a\0";
-    char *shortest_word_curr_sent = "bcdefghijk\0";
+    static char longest_word_curr_sent[20];
+    static char shortest_word_curr_sent[20];
     int len_longest_word = -1;
     int len_shortest_word = __INT_MAX__;
-    char *longest_word = "l\0";
-    char *shortest_word = "mnopqrstuv\0";
+    static char longest_word[20];
+    static char shortest_word[20];
     int command = 4;
 
     // check if different file path is given
     if(argc > 1){
-        file_path = argv[1];
+        memmove(file_path, argv[1], strlen(argv[1]));
         //*(file_path + strlen(file_path)) = '\0';
     }
 

@@ -103,12 +103,13 @@ void find_global_values(char* buff, int len){
     *len_longest = strlen(lw);
     *len_shortest = strlen(sw);
 
-    for(int i = 0; i < strlen(sw+1); i++)
+    for(int i = 0; i <= strlen(sw+1); i++)
         *(shortest_word+i) = *(sw+i);
-    for(int i = 0; i < strlen(lw)+1; i++)
+    //*(shortest_word + strlen(sw)) = '\0';
+    for(int i = 0; i <= strlen(lw)+1; i++)
         *(longest_word+i) = *(lw+i);
 
-    //printf("global %s %s %s %s \n", lw, sw, longest_word, shortest_word);
+    printf("global %s %s %s %s \n", lw, sw, longest_word, shortest_word);
 }
 
 void check_current_setence(char *buff, int start, int end){
@@ -138,9 +139,9 @@ void check_current_setence(char *buff, int start, int end){
     get_data("cs_longest", &cs_longest);
     get_data("cs_shortest", &cs_shortest);
 
-     for(int i = 0; i < strlen(sw+1); i++)
+    for(int i = 0; i <= strlen(sw+1); i++)
         *(cs_shortest+i) = *(sw+i);
-    for(int i = 0; i < strlen(lw)+1; i++)
+    for(int i = 0; i <= strlen(lw)+1; i++)
         *(cs_longest+i) = *(lw+i);
 
     printf("cs: %s %s %s %s\n", lw, sw, cs_longest, cs_shortest);
