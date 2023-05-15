@@ -214,7 +214,7 @@ int allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
 	if(newsz < oldsz)
 		return oldsz;
 
-	a = PGROUNDUP(oldsz);						// NO switched: round up of the newsz so the memory is expanded
+	a = PGROUNDUP(oldsz);						
 	for(; a < newsz; a += PGSIZE){
 		mem = kalloc();							// new page in physical memory
 		if(mem == 0){

@@ -28,6 +28,7 @@ int main(int argc, char *argv[]){
     buff[n] = '\0';
 
     find_global_values(buff, n);
+    exit();
 
     for( ; ; ){
         
@@ -44,7 +45,7 @@ int main(int argc, char *argv[]){
             i++;
         
         //check curr sent 
-        check_current_setence(buff, sent_start, i);
+        //check_current_setence(buff, sent_start, i);
         i++;                                            //move i from '.?!' to next sentence
 
         //check user command from coMMa
@@ -83,6 +84,10 @@ void find_global_values(char* buff, int len){
     get_data("len_longest", &len_longest);
     get_data("len_shortest", &len_shortest);
 
+    char *cs_longest, *cs_shortest;
+    get_data("cs_longest", &cs_longest);
+    get_data("cs_shortest", &cs_shortest);
+
     for(int i = 0; i <= len; i++){
 
         if(buff[i] == ' ' || i == len){
@@ -98,6 +103,7 @@ void find_global_values(char* buff, int len){
                 for(int j = 0; j < wlen; j++)
                     *(longest_word+j) = *(word+j);
                 *(longest_word + wlen) = '\0';
+                printf("LONG %s %s %s\n", word, longest_word, shortest_word);
             } 
             
             //check for min
@@ -106,13 +112,15 @@ void find_global_values(char* buff, int len){
                 for(int j = 0; j < wlen; j++)
                     *(shortest_word+j) = *(word+j);
                 *(shortest_word + wlen) = '\0';
+                printf("SHORT %s %s \n", word, shortest_word);
             }
 
             wstart = i+1;
         }
     }
 
-    printf("%s %s \n", longest_word, shortest_word);
+    printf("global: %s %s \n", longest_word, shortest_word);
+    printf("global: %s %s \n", cs_longest, cs_shortest);
 }
 
 void check_current_setence(char *buff, int start, int end){
@@ -123,8 +131,10 @@ void check_current_setence(char *buff, int start, int end){
     get_data("cs_shortest", &cs_shortest);
 
     //reset values
-    *cs_longest = "\0";
-    *cs_shortest = "alohomora\0";
+    *(cs_longest+1) = "\0";
+    *(cs_shortest+19) = "\0";
+
+    printf("pre %s %s \n", cs_longest, cs_shortest);
 
     for(int i = start; i <= end; i++){
 
@@ -153,5 +163,5 @@ void check_current_setence(char *buff, int start, int end){
         }
     }
 
-    //printf("cs: %s %s \n", cs_longest, cs_shortest);
+    printf("cs: %s %s \n", cs_longest, cs_shortest);
 }

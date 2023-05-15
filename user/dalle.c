@@ -7,14 +7,14 @@ char *argv_lisa[] = { "lisa", 0 };
 
 int main(int argc, char *argv[]){
 
-    char *file_path = "../home/README";
+    char *file_path = "../home/README\0";
     int curr_sent_no = 0;
-    char *longest_word_curr_sent = "\0";
-    char *shortest_word_curr_sent = "alohomora\0";
+    char *longest_word_curr_sent = "a\0";
+    char *shortest_word_curr_sent = "bcdefghijk\0";
     int len_longest_word = -1;
     int len_shortest_word = __INT_MAX__;
-    char *longest_word = "\0";
-    char *shortest_word = "alohomora";
+    char *longest_word = "l\0";
+    char *shortest_word = "mnopqrstuv\0";
     int command = 4;
 
     // check if different file path is given
@@ -23,15 +23,15 @@ int main(int argc, char *argv[]){
         //*(file_path + strlen(file_path)) = '\0';
     }
 
-    share_data("file_path", file_path, 20);
-    share_data("curr_sent", &curr_sent_no, 4);
     share_data("cs_longest", longest_word_curr_sent, 20);
     share_data("cs_shortest", shortest_word_curr_sent, 20);
+    share_data("file_path", file_path, 20);
+    share_data("curr_sent", &curr_sent_no, 4);
     share_data("len_longest", &len_longest_word, 4);
     share_data("len_shortest", &len_shortest_word, 4);
+    share_data("command", &command, 4);
     share_data("longest_word", longest_word, 20);
     share_data("shortest_word", shortest_word, 20);
-    share_data("command", &command, 4);
 
     int child_comma, child_lisa;
 

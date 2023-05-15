@@ -490,8 +490,8 @@ int sys_get_data(void){
 	for(int i = 0; i < SHAREDCOUNT; i++){
 
 		if(strncmp(name, curproc->shared[i].name, SHAREDNAME) == 0){
+			//cprintf("GET DATA %s %s %d \n", curproc->name, name, curproc->shared[i].memstart);
 			*addr = curproc->shared[i].memstart;	
-			//cprintf("get data %d  memstart %d memstart_p %d size %d\n", *addr, *(curproc->shared[i].memstart), *(curproc->parent->shared[i].memstart), curproc->shared[i].size);
 			return 0;
 		}
 	}
