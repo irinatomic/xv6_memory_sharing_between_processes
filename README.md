@@ -45,24 +45,24 @@ Every process frees the shared memory struct it has access to by putting the siz
 There are 3 user programs: parent one (**dalle**) and 2 children (**liSa** and **coMMa**).
 
 - **dalle**:
-    This program starts an interactive system for analysing text files. It starts children processes and waits for their end to end itself. Structures which are shared with it's children:
-        - path to file - char* 
-        - current sentence - int 
-        - longest word in current sentence - char* 
-        - shortest word in current sentence - char* 
-        - longest word in file - char*
-        - shortest word in file - char* 
-        - length of the global longest word - int 
-        - length of the global shortest word - int 
-        - command indicator - int 
+    This program starts an interactive system for analysing text files. It starts children processes and waits for their end to end itself. Structures which are shared with it's children: <br>
+        - path to file - char* <br>
+        - current sentence - int <br>
+        - longest word in current sentence - char* <br>
+        - shortest word in current sentence - char* <br>
+        - longest word in file - char* <br>
+        - shortest word in file - char* <br>
+        - length of the global longest word - int <br>
+        - length of the global shortest word - int <br>
+        - command indicator - int <br>
 
 - **coMMa**:
-    This program receives commands from the user: 
-        - 1 -> latest: current sentence number +  shortest & longest word in curr sent
-        - 2 -> global extrema: shortest & longest word in file + their lengths
-        - 3 -> pause: pause analysis of file
-        - 4 -> resume: resumes analysis of file
-        - 5 -> notifies liSa to end and ends itself
+    This program receives commands from the user: <br>
+        - 1 -> latest: current sentence number +  shortest & longest word in curr sent <br>
+        - 2 -> global extrema: shortest & longest word in file + their lengths <br>
+        - 3 -> pause: pause analysis of file <br>
+        - 4 -> resume: resumes analysis of file <br>
+        - 5 -> notifies liSa to end and ends itself <br>
 
 - **liSa**:
     This program analyses the file. First it finds the global values and then analyses every sentence. After every sentence it sleep(150) to simulate the analysis of data. After every sentence, it checks if the command indicator has changed. If it is 3 (pause) it sleep(1) before again checking the command indicator.
