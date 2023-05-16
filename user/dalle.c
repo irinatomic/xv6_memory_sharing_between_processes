@@ -7,6 +7,7 @@ char *argv_lisa[] = { "lisa", 0 };
 
 int main(int argc, char *argv[]){
 
+    //static allocation because xv6 stack is very small so some variables may overlap
     static char file_path[20] = "../home/README\0";
     int curr_sent_no = 0;
     static char longest_word_curr_sent[20];
