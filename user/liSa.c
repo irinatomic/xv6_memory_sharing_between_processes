@@ -7,10 +7,10 @@ int main(int argc, char *argv[]){
 
     int fd, n, sent_start, i = 0, *command;
     uint *curr_sent;
-    char* file_path = "../home/README";
+    static char* file_path = "../home/README";
     struct stat st;
 
-    //get_data("file_path", &file_path);
+    // get_data("file_path", &file_path);
     if ((fd = open(file_path, 0)) < 0){
         printf("Problem opening file: %s \n", file_path);
         close(fd);
@@ -103,10 +103,9 @@ void find_global_values(char* buff, int len){
     *len_longest = strlen(lw);
     *len_shortest = strlen(sw);
 
-    for(int i = 0; i <= strlen(sw+1); i++)
+    for(int i = 0; i <= strlen(sw); i++)
         *(shortest_word+i) = *(sw+i);
-    //*(shortest_word + strlen(sw)) = '\0';
-    for(int i = 0; i <= strlen(lw)+1; i++)
+    for(int i = 0; i <= strlen(lw); i++)
         *(longest_word+i) = *(lw+i);
 
     printf("global %s %s %s %s \n", lw, sw, longest_word, shortest_word);
@@ -123,7 +122,7 @@ void check_current_setence(char *buff, int start, int end){
         if(buff[i] == ' ' || i == end){
             wend = i-1;
             wlen = wend - wstart + 1;
-            char *word = (char *) malloc(10 * sizeof(char));
+            memset(word, 0, wlen);
             strncpy(word, buff+wstart, wlen);  
             word[wlen] = '\0';
 
@@ -139,9 +138,9 @@ void check_current_setence(char *buff, int start, int end){
     get_data("cs_longest", &cs_longest);
     get_data("cs_shortest", &cs_shortest);
 
-    for(int i = 0; i <= strlen(sw+1); i++)
+    for(int i = 0; i <= strlen(sw); i++)
         *(cs_shortest+i) = *(sw+i);
-    for(int i = 0; i <= strlen(lw)+1; i++)
+    for(int i = 0; i <= strlen(lw); i++)
         *(cs_longest+i) = *(lw+i);
 
     printf("cs: %s %s %s %s\n", lw, sw, cs_longest, cs_shortest);

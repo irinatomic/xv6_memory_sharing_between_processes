@@ -256,11 +256,10 @@ exit(void)
 	}
 
 	// NEW
-	// for(int i=0 ; i<SHAREDCOUNT ; i++){
-	// 	cprintf("exit: %s \n", curproc->name);
-	// 	if(curproc->shared[i].memstart > SHAREDBASE)
-	// 		curproc->shared[i].size = 0;
-	// }
+	for(int i=0 ; i<SHAREDCOUNT ; i++){
+		if(curproc->shared[i].memstart > SHAREDBASE)
+			curproc->shared[i].size = 0;
+	}
 
 	//freevm(curproc->pgdir);
 

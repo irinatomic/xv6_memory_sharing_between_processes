@@ -20,8 +20,8 @@ int main(int argc, char *argv[]){
     // check if different file path is given
     if(argc > 1){
         memmove(file_path, argv[1], strlen(argv[1]));
-        //*(file_path + strlen(file_path)) = '\0';
-    }
+        *(file_path + strlen(file_path)) = '\0';
+    } 
 
     share_data("cs_longest", longest_word_curr_sent, 20);
     share_data("cs_shortest", shortest_word_curr_sent, 20);
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
     child_lisa = fork();
     if(child_lisa == 0){
         exec("/bin/liSa", argv_lisa);
-        //exit();
+        exit();
     }
 
     child_comma = fork();
