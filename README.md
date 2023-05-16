@@ -1,8 +1,6 @@
 ## Homework 3 for Uni
 
-The purpose of this homework was to allow parent-child processes to communicate through shared memory structures.
-
-The parent process reports the shared memory structures to the OS (system call share_data). Direct children can get access to that shared memory from the OS (system call get_data).
+The purpose of this homework was to allow parent-child processes to communicate through shared memory structures. The parent process reports the shared memory structures to the OS (system call share_data). Direct children can get access to that shared memory from the OS (system call get_data).
 
 
 ### Structures shared and proc
@@ -19,13 +17,13 @@ Proc structure now has additional:
 
 ### System calls
 
-**int share_data(char *name, void*addr, int size)**
+**int share_data(char \*name, void \*addr, int size)** <br>
 Parent reports a new shared struct. If it is successfully added to the array of shared structs, process returns the index of the added struct. In case of an error, the function returns:
 - -1: bad parameter
 - -2: there is already a shared struct of the same name
 - -3: array of shared structs is full
 
-**int get_data(char *name, void **addr)**
+**int get_data(char \*name, void \*\*addr)** <br>
 Child asks for the shared struct that the parent already reported. The second parameter is passed through a reference where we store the addr of the found shared structure. In case of an error, the function returns:
 - -1: bad parameter
 - -2: no shared struct of the given name
