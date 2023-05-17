@@ -5,28 +5,28 @@ The purpose of this homework was to allow parent-child processes to communicate 
 
 ### Structures shared and proc
 
-The new shared structure contains: 
-- name (max 10 characters)
-- pointer to the start of shared memory (virtual address)
-- size of shared memory
+The new shared structure contains: <br>
+    - name (max 10 characters) <br>
+    - pointer to the start of shared memory (virtual address) <br>
+    - size of shared memory <br>
 
-Proc structure now has additional:
-- max number of shared strctures (10)
-- array of shared structures
+Proc structure now has additional: <br>
+    - max number of shared strctures (10) <br>
+    - array of shared structures <br>
 
 
 ### System calls
 
 **int share_data(char \*name, void \*addr, int size)** <br>
-Parent reports a new shared struct. If it is successfully added to the array of shared structs, process returns the index of the added struct. In case of an error, the function returns:
-- -1: bad parameter
-- -2: there is already a shared struct of the same name
-- -3: array of shared structs is full
+Parent reports a new shared struct. If it is successfully added to the array of shared structs, process returns the index of the added struct. In case of an error, the function returns: <br>
+    - -1: bad parameter <br>
+    - -2: there is already a shared struct of the same name <br>
+    - -3: array of shared structs is full <br>
 
 **int get_data(char \*name, void \*\*addr)** <br>
-Child asks for the shared struct that the parent already reported. The second parameter is passed through a reference where we store the addr of the found shared structure. In case of an error, the function returns:
-- -1: bad parameter
-- -2: no shared struct of the given name
+Child asks for the shared struct that the parent already reported. The second parameter is passed through a reference where we store the addr of the found shared structure. In case of an error, the function returns: <br>
+    - -1: bad parameter <br>
+    - -2: no shared struct of the given name <br>
 
 ### System (kernel part) changes
 
@@ -57,7 +57,7 @@ There are 3 user programs: parent one (**dalle**) and 2 children (**liSa** and *
 - **coMMa**:
     This program receives commands from the user: <br>
         - 1 -> latest: current sentence number +  shortest & longest word in curr sent <br>
-        - 2 -> global extrema: shortest & longest word in file + their lengths <br>
+        - 2 -> global extrema: shortest & longest word up to & including curr sent + their lengths <br>
         - 3 -> pause: pause analysis of file <br>
         - 4 -> resume: resumes analysis of file <br>
         - 5 -> notifies liSa to end and ends itself <br>

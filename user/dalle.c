@@ -12,7 +12,7 @@ int main(int argc, char *argv[]){
     int curr_sent_no = 0;
     static char longest_word_curr_sent[20];
     static char shortest_word_curr_sent[20];
-    int len_longest_word = -1;
+    int len_longest_word = 0;
     int len_shortest_word = __INT_MAX__;
     static char longest_word[20];
     static char shortest_word[20];
