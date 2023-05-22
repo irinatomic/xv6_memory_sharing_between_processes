@@ -51,8 +51,6 @@ int main(int argc, char *argv[]){
     int p1 = wait();
     int p2 = wait();
 
-    //printf("%d %d %d %d \n", child_comma, child_lisa, p1, p2);
-
     // free memory
     free(file_path);
     free(longest_word_curr_sent);

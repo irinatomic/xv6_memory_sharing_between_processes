@@ -395,7 +395,8 @@ int copyout(pde_t *pgdir, uint va, void *p, uint len)
 */
 int access_shared_memory(pde_t *pgdir, int can_write){
 
-	uint perm, old_perm, size;
+	uint perm, old_perm;
+	pte_t *pte;	
 	char* va = SHAREDBASE;
 	struct proc *curproc = myproc(); 		
 
@@ -403,10 +404,32 @@ int access_shared_memory(pde_t *pgdir, int can_write){
 		if(curproc->shared[i].size == 0)
 			break;
 
+		// Map the physical memory starting from 'pa_start' to virtual memory starting from '*va'.
+		// Map pages (PGSIZE = 4KB) until a total of 'size' bytes are mapped.
+		// Roounds up the size to the nearest page size
+
 		old_perm = PTE_FLAGS(curproc->shared[i].memstart);		//last 12 bits
-		if((size = mapp_pa2va(pgdir, curproc->parent_pgdir, curproc->shared[i].memstart, (void*)va, curproc->shared[i].size)) < 0){
-			freevm(pgdir);										// mistake -> deallocate entire virtual mem
-			return -1;
+		uint vpage_start = PGROUNDUP((uint)va);
+		uint pa_start = curproc->shared[i].memstart;
+		uint size = PGROUNDUP(curproc->shared[i].size);
+
+		for(int i = 0; i < size; i += PGSIZE){
+
+			if((pte = walkpgdir(curproc->parent_pgdir, pa_start, 0)) == 0)
+				return -1;
+			if(!(*pte & PTE_P))
+				return -1;	
+
+			uint pa = PTE_ADDR(*pte);
+
+			if(mappages(pgdir, (uint*)vpage_start, PGSIZE, pa, PTE_W|PTE_U) < 0){
+				cprintf("mapp_pa2va: couldn't map the pages \n");
+				deallocuvm(pgdir, va + size, va);
+				return -1;
+			}	
+
+			vpage_start += PGSIZE;
+			pa_start += PGSIZE;
 		}
 
 		curproc->shared[i].memstart = va + old_perm;		
@@ -414,43 +437,4 @@ int access_shared_memory(pde_t *pgdir, int can_write){
 	}
 	
 	return 0;
-}
-
-/* 	Map the physical memory starting from 'pa_start' to virtual memory starting from '*va'.
-	Map pages (PGSIZE = 4KB) until a total of 'size' bytes are mapped.
-	Returns size of mapped area (requested size of the memory rouned up to the nearest page size).
-*/
-int mapp_pa2va(pde_t *pgdir, pde_t *parentpgdir, char *pa_start, uint *va, uint size){
-
-	pte_t *pte;									//pte for the physical address
-	uint pa, vpage_start;	
-
-	if(va + size >= KERNBASE)				
-		return -1;
-
-	vpage_start = PGROUNDUP((uint)va);
-	size = PGROUNDUP(size);
-
-	for(int i = 0; i < size; i += PGSIZE){
-
-		if((pte = walkpgdir(parentpgdir, pa_start, 0)) == 0)
-			return -1;
-		if(!(*pte & PTE_P)){
-			cprintf("mapp_pa2va: page not present \n");
-			return -1;	
-		}
-
-		pa = PTE_ADDR(*pte);
-
-		if(mappages(pgdir, (uint*)vpage_start, PGSIZE, pa, PTE_W|PTE_U) < 0){
-			cprintf("mapp_pa2va: couldn't map the pages \n");
-			deallocuvm(pgdir, va + size, va);
-			return -1;
-		}	
-
-		vpage_start += PGSIZE;
-		pa_start += PGSIZE;
-	}
-
-	return size;
 }
