@@ -259,6 +259,10 @@ exit(void)
 	for(int i=0 ; i<SHAREDCOUNT ; i++){
 		if(curproc->shared[i].memstart > SHAREDBASE)
 			curproc->shared[i].size = 0;
+		if(curproc->parent == 0){
+			kfree(curproc->shared[i].memstart);
+			curproc->shared[i].memstart = 0;
+		}
 	}
 
 	//freevm(curproc->pgdir);
