@@ -65,7 +65,7 @@ int exec(char *path, char **argv) {
 
 	// NEW: dozvolimo dete procesu da pise u deljenu memoriju
 	if(strncmp("comma", argv[0], SHAREDNAME) == 0 || strncmp("lisa", argv[0], SHAREDNAME) == 0)
-		access_shared_memory(pgdir, 1);
+		access_shared_memory(pgdir);
 
 	// Allocate 2 pages at the next page boundary. Make the 1. inaccessible. Use the 2. as the user stack [TOP TO BOTTOM]
 	// Allocates 2 pages -> stack goes from the top (2. page) and when it reaches the 1. page throws error [page fault]

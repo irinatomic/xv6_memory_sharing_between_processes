@@ -388,14 +388,14 @@ int copyout(pde_t *pgdir, uint va, void *p, uint len)
 	pte_t = PTE (page table entry)
 */
 
-/*  Map each shared region (max 10) from the physical addrs to new virtual addr in user space (mapp_pa2va).
+/*  Map each shared region (max 10) from the physical addrs to new virtual addr in user space.
 	Then update the va for the shared mem region in the parent proc to match the child.
 	PTE_W           0x002   (writeable)
 	PTE_U           0x004   (can be accessed from user space)
 */
-int access_shared_memory(pde_t *pgdir, int can_write){
+int access_shared_memory(pde_t *pgdir){
 
-	uint perm, old_perm;
+	uint old_perm;
 	pte_t *pte;	
 	char* va = SHAREDBASE;
 	struct proc *curproc = myproc(); 		
