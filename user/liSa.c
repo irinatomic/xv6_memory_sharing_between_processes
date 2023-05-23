@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]){
 
-    int fd, n, sent_start, i = 0, *command;
+    int fd, len, sent_start, i = 0, *command;
     uint *curr_sent;
     char *get_file_path;
     char* file_path = "../home/README";
@@ -28,12 +28,12 @@ int main(int argc, char *argv[]){
     }
 
     char buff[st.size];
-    n = read(fd, buff, sizeof(buff));
-    buff[n] = '\0';
+    len = read(fd, buff, sizeof(buff));
+    buff[len] = '\0';
 
     for( ; ; ){
         
-        if(i >= n) break;
+        if(i >= len) break;
 
         i = (buff[i] == ' ')? i+1: i;                   //for space after the sign (.?!)
         get_data("curr_sent", &curr_sent);              //increment counter for curr sent
