@@ -34,10 +34,11 @@ Child asks for the shared struct that the parent already reported. The second pa
 When system call fork is called, new procces should inherit all shared structures from it's parent. At this point child has just copy of the shared memory. That means that child still can't communicate with it's parent.<br/>
 
 2.  **exec() modification**:<br/>
-Regular process size is restricted to be maximum 1GB. Starting at 1GB up to the 2GB are mapped physical addresses of the shared memory inherited from the parent. At this point communication between child and parent is possible, because the real physical address of the parent's shared memory are mapped in the child virtual memory starting at 1GB up to the 2GB. <br/>
+Every process has it's user space (0-2GB) and kernel space (2-4GB, starts from KERNBASE defined in kernel/memlayout.h).
+We wish to map the physical addresses parent process points to in the child's user space starting from 1GB. Now parent and child have different addresses in their user space that point to their PTE that point to the physical addr. of their shared data. 
 
 3.  **exit() modification**:<br/>
-Every process frees the shared memory struct it has access to by putting the size to 0.
+Every process frees the shared memory struct it has access to by freeing the pointer to the virtual memory and flaging it as free (memstart -> 0 and size -> 0). Additionally, the parent process clears the physical memory. [kernel/proc.c]
 
 ### User programs
 There are 3 user programs: parent one (**dalle**) and 2 children (**liSa** and **coMMa**).

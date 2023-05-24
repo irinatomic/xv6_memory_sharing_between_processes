@@ -407,15 +407,16 @@ int access_shared_memory(pde_t *pgdir){
 		// Map the physical memory 'pa' to virtual memory '*va'.
 		// Map pages (PGSIZE = 4KB) until a total of 'size' bytes are mapped.
 		// Roounds up the size to the nearest page size
+		// IMPORTANT: mapping page by page because the pages in the physical mem. may not be continual!
 
 		old_perm = PTE_FLAGS(curproc->shared[i].memstart);		//last 12 bits
-		uint vpage_start = PGROUNDUP((uint)va);
-		uint memstart = curproc->shared[i].memstart;
+		uint vpage_start = PGROUNDUP((uint)va);					// va - od 1GB
+		uint shared_start = curproc->shared[i].memstart;			
 		uint size = PGROUNDUP(curproc->shared[i].size);
 
 		for(int i = 0; i < size; i += PGSIZE){
 
-			if((pte = walkpgdir(curproc->parent_pgdir, memstart, 0)) == 0)
+			if((pte = walkpgdir(curproc->parent_pgdir, shared_start, 0)) == 0)
 				return -1;
 			if(!(*pte & PTE_P))
 				return -1;	
@@ -429,7 +430,7 @@ int access_shared_memory(pde_t *pgdir){
 			}	
 
 			vpage_start += PGSIZE;
-			memstart += PGSIZE;
+			shared_start += PGSIZE;
 		}
 
 		curproc->shared[i].memstart = va + old_perm;		
